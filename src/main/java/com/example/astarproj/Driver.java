@@ -2,12 +2,14 @@ package com.example.astarproj;
 // Note undirected graph
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -42,7 +44,7 @@ public class Driver extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.initStyle(StageStyle.UTILITY);
+        primaryStage.initStyle(StageStyle.DECORATED);
         InputStream photoStream = new FileInputStream("Palestine.png");
         table = new TableEntry[citiesMap.size() + 1];
         initializeTable();
@@ -110,13 +112,13 @@ public class Driver extends Application {
         border.setStyle("-fx-background-color:SkyBlue;");
         Scene scene = new Scene(border, 1020, 750);
 //         Get x and y position of a scene
-//		scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
-//			@Override
-//			public void handle(MouseEvent event) {
-//				System.out.println(event.getSceneX());
-//				System.out.println(event.getSceneY());
-//			}
-//		});
+		scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				System.out.println(event.getSceneX());
+				System.out.println(event.getSceneY());
+			}
+		});
 //        primaryStage.setFullScreen(true);
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
@@ -174,7 +176,7 @@ public class Driver extends Application {
         }
     }
 
-    private void printPath(City start, StringBuilder s) {//Not to bebo start her is end
+    private void printPath(City start, StringBuilder s) {//Note to bebo start her is end
         if (table[start.cityEntry].path != null) {
             table[start.cityEntry].path.line.setEndX(start.c.getTranslateX());
             table[start.cityEntry].path.line.setEndY(start.c.getTranslateY());

@@ -1,19 +1,13 @@
 package com.example.astarproj;
-
 import javafx.util.Pair;
-
-import java.util.HashSet;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.Set;
 
 public class Astar {
     private PriorityQueue<Adjacent> openList;
-    //    private HashSet<City> closedSet = new HashSet<>();
     private City start;
     private City target;
     private Map<Pair<String, String>, Double> hueristicMap;
-
     public Astar(Map<Pair<String, String>, Double> hueristicMap) {
         this.hueristicMap = hueristicMap;
         openList = new PriorityQueue<Adjacent>();
@@ -40,7 +34,7 @@ public class Astar {
         return table;
     }
 
-    private void addAdjacents(City current, TableEntry[] table) {
+    private void addAdjacents(City current, TableEntry[] table){
         double edgeDis = -1;
         double newDis = -1;
         for (Adjacent adj : current.adjacent) {
@@ -53,14 +47,13 @@ public class Astar {
                     table[adj.getCity().cityEntry].distance = newDis -h;
                     table[adj.getCity().cityEntry].path = current;
                 }
-                openList.add(new Adjacent(adj.getCity(), (float) (table[adj.getCity().cityEntry].distance)));
+            openList.add(new Adjacent(adj.getCity(), (float) (table[adj.getCity().cityEntry].distance)));
             }
         }
     }
 
     private double hurrestic(City cur, City target) {
         Pair<String, String> p = new Pair<>(cur.getName(), target.getName());
-        System.out.println("City 1 to city 2: "+ cur+"---"+target);
         return hueristicMap.getOrDefault(p, calculateDistance(cur.lattitude,cur.longtidue,target.lattitude,target.longtidue));//if not found calculate air distance
     }
 
@@ -81,7 +74,7 @@ public class Astar {
 
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         double distance = radius * c;
-        System.out.println("Distance calculating"+distance);
+//        System.out.println("Distance calculating"+distance);
         return distance;
     }
 
