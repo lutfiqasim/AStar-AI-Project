@@ -2,14 +2,12 @@ package com.example.astarproj;
 // Note undirected graph
 
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -25,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -40,13 +39,13 @@ public class Driver extends Application {
     static ComboBox<String> cmb_target;
     private static Map<String, City> citiesMap = new HashMap<>();
     private static Map<Pair<String, String>, Double> hueristicMap = new HashMap<>();
-    static TableEntry[] table;
+    static TableEntry[] AStarTable;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.initStyle(StageStyle.DECORATED);
         InputStream photoStream = new FileInputStream("Palestine.png");
-        table = new TableEntry[citiesMap.size() + 1];
+        AStarTable = new TableEntry[citiesMap.size() + 1];
         initializeTable();
         Image worldMap = new Image(photoStream);
         ImageView view = new ImageView();
@@ -106,19 +105,21 @@ public class Driver extends Application {
         border.setPadding(new Insets(40, 20, 20, 20));
         for (Map.Entry<String, City> c : citiesMap.entrySet()) {
             border.getChildren().add(c.getValue().c);
-            border.getChildren().add(c.getValue().line);
-            c.getValue().line.setVisible(false);
+            border.getChildren().add(c.getValue().AstarLine);
+            border.getChildren().add(c.getValue().bfsLine);
+            c.getValue().AstarLine.setVisible(false);
+            c.getValue().bfsLine.setVisible(false);
         }
         border.setStyle("-fx-background-color:SkyBlue;");
         Scene scene = new Scene(border, 1020, 750);
 //         Get x and y position of a scene
-		scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
-				System.out.println(event.getSceneX());
-				System.out.println(event.getSceneY());
-			}
-		});
+//		scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
+//			@Override
+//			public void handle(MouseEvent event) {
+//				System.out.println(event.getSceneX());
+//				System.out.println(event.getSceneY());
+//			}
+//		});
 //        primaryStage.setFullScreen(true);
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
@@ -137,7 +138,7 @@ public class Driver extends Application {
     }
 
     private void OnStart() throws Exception {
-        if (table.length != 0) {
+        if (AStarTable.length != 0) {
             OnClear();
         }
         try {
@@ -145,13 +146,26 @@ public class Driver extends Application {
             String start = cmb_start.getValue();
             String end = cmb_target.getValue();
             Astar search = new Astar(hueristicMap);
+            BFS  bfsSearch = new BFS();
             if (start != null && end != null) {
-                table = search.findPath(citiesMap.get(start), citiesMap.get(end), table);
+                AStarTable = search.findPath(citiesMap.get(start), citiesMap.get(end), AStarTable);
+                ArrayList<City> bfsroute= bfsSearch.findPath(citiesMap.get(start),citiesMap.get(end), citiesMap.size());
+//                Printing A star path
                 StringBuilder path = new StringBuilder("");
                 printPath(citiesMap.get(end), path);
+//                -----------------------------------------------------------------------------
+//                BFS call and path returning and printing on consule
+                System.out.println(bfsSearch.getTime());
+                for (City c: bfsroute)
+                    System.out.println(c);
+                printBFSPath(bfsroute);
+                System.out.println("BFS EDGE COUNT = "+(bfsroute.size()-1));
+//                -----------------------------------------------------------
+
                 txtArea_path.setText(path.toString());
                 txtArea_result.setText("Distance to go from " + start + " to " + end + "\n="
-                        + table[citiesMap.get(end).cityEntry].getDistance() + "km");
+                        + AStarTable[citiesMap.get(end).cityEntry].getDistance() + "km\n"+
+                        "Time taken to find using A*=:"+search.timeTaken());
             }else{
                 warning_Message("Enter starting point and end point");
             }
@@ -161,39 +175,54 @@ public class Driver extends Application {
     }
 
     private void OnClear() {
-//        initializeTable();
+        initializeTable();
         txtArea_path.clear();
         txtArea_result.clear();
-        for (int i = 0; i < table.length; i++) {
-            table[i].known = false;
-            if (table[i].path != null) {
-                System.out.println(table[i].path);
-                table[i].path.line.setVisible(false);
-                table[i].path.c.setFill(Color.RED);
+        for (int i = 0; i < AStarTable.length; i++) {
+            AStarTable[i].known = false;
+            if (AStarTable[i].path != null) {
+                AStarTable[i].path.AstarLine.setStroke(Color.BLACK);
             }
-            table[i].path = null;
-            table[i].distance = Double.MAX_VALUE;
+            AStarTable[i].path = null;
+            AStarTable[i].distance = Double.MAX_VALUE;
         }
+        for(Map.Entry<String, City> c:citiesMap.entrySet()){
+            c.getValue().c.setFill(Color.RED);
+            c.getValue().bfsLine.setVisible(false);
+            c.getValue().AstarLine.setVisible(false);
+        }
+
     }
 
     private void printPath(City start, StringBuilder s) {//Note to bebo start her is end
-        if (table[start.cityEntry].path != null) {
-            table[start.cityEntry].path.line.setEndX(start.c.getTranslateX());
-            table[start.cityEntry].path.line.setEndY(start.c.getTranslateY());
-            table[start.cityEntry].path.line.setVisible(true);
-            table[start.cityEntry].path.c.setFill(Color.BLUE);
-            printPath(table[start.cityEntry].path, s);
+        if (AStarTable[start.cityEntry].path != null) {
+            AStarTable[start.cityEntry].path.AstarLine.setEndX(start.c.getTranslateX());
+            AStarTable[start.cityEntry].path.AstarLine.setEndY(start.c.getTranslateY());
+            AStarTable[start.cityEntry].path.AstarLine.setVisible(true);
+            AStarTable[start.cityEntry].path.c.setFill(Color.BLUE);
+            printPath(AStarTable[start.cityEntry].path, s);
             s.append("to :");
         }
-        s.append(start + " Distance: " + table[start.cityEntry].getDistance() + " km\n");
+        s.append(start + " Distance: " + AStarTable[start.cityEntry].getDistance() + " km\n");
     }
-
+    private void printBFSPath(ArrayList<City>route){
+        for (int i =0;i<route.size()-1;i++){
+            if(route.get(i+1).c.getTranslateX() == route.get(i).AstarLine.getEndX()){// then it's a common path
+                    route.get(i).AstarLine.setStroke(Color.GREEN);
+            }else{
+                System.out.println("HERERE");
+                route.get(i).bfsLine.setEndX(route.get(i+1).c.getTranslateX());
+                route.get(i).bfsLine.setEndY(route.get(i+1).c.getTranslateY());
+                route.get(i).bfsLine.setVisible(true);
+            }
+        }
+    }
     private void initializeTable() {
-        for (int i = 0; i < table.length; i++) {
-            table[i] = new TableEntry();
-            table[i].known = false;
-            table[i].path = null;
-            table[i].distance = Double.MAX_VALUE;
+        for (int i = 0; i < AStarTable.length; i++) {
+            AStarTable[i] = new TableEntry();
+            AStarTable[i].known = false;
+            AStarTable[i].path = null;
+            AStarTable[i].distance = Double.MAX_VALUE;
         }
     }
 

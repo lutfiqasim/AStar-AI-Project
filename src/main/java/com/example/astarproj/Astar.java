@@ -8,12 +8,15 @@ public class Astar {
     private City start;
     private City target;
     private Map<Pair<String, String>, Double> hueristicMap;
+    private long startTime=0;
+    private long endTime=0;
     public Astar(Map<Pair<String, String>, Double> hueristicMap) {
         this.hueristicMap = hueristicMap;
         openList = new PriorityQueue<Adjacent>();
     }
 
     public TableEntry[] findPath(City start, City target, TableEntry[] table) {
+        startTime = System.currentTimeMillis();
         this.target = target;
         this.start = start;
         table[start.cityEntry].distance = 0;
@@ -26,11 +29,13 @@ public class Astar {
             table[cityEntry].known = true;
 
             if (isFinalDestination(current.getCity())) {
+                endTime = System.currentTimeMillis();
                 return table;
             } else {
                 addAdjacents(current.getCity(), table);
             }
         }
+        endTime = System.currentTimeMillis();
         return table;
     }
 
@@ -80,6 +85,12 @@ public class Astar {
 
     private boolean isFinalDestination(City currentNode) {
         return currentNode.equals(target);
+    }
+    public long timeTaken(){
+        if(startTime==0 || endTime ==0){
+            return -1;
+        }
+        return endTime -startTime;
     }
 
 }

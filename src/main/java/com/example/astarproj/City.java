@@ -18,28 +18,36 @@ public class City {
     int cityEntry;
     Circle c;
     Set<Adjacent> adjacent = new HashSet<>();
-    Line line;
+    Line AstarLine;
+    Line bfsLine;
 
     public City(String name, double x, double y) {
         this.x = x;
         this.y = y;
         this.name = name;
-        this.line = new Line();
+        this.AstarLine = new Line();
+        this.bfsLine = new Line();
         createCircle();
         this.cityEntry = number++;
     }
 
     private void createCircle() {
-        line = new Line();
-        line.toFront();
-        line.setStroke(Color.BLACK);
-        line.setStrokeWidth(2);
+        AstarLine = new Line();
+        AstarLine.toFront();
+        AstarLine.setStroke(Color.BLACK);
+        AstarLine.setStrokeWidth(2);
+        bfsLine = new Line();
+        bfsLine.toFront();
+        bfsLine.setStrokeWidth(2);
+        bfsLine.setStroke(Color.YELLOW);
         c = new Circle(3);
         c.setFill(Color.RED);
         c.setTranslateZ(4);
         setXAndYProperty();
-        line.setStartX(c.getTranslateX());
-        line.setStartY(c.getTranslateY());
+        AstarLine.setStartX(c.getTranslateX());
+        AstarLine.setStartY(c.getTranslateY());
+        bfsLine.setStartX(c.getTranslateX());
+        bfsLine.setStartY(c.getTranslateY());
         Tooltip toolTipTxt = new Tooltip(this.name);
         // Setting the tool tip to the text field
         Tooltip.install(c, toolTipTxt);
