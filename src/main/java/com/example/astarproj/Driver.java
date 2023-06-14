@@ -209,8 +209,8 @@ public class Driver extends Application {
         for (int i =0;i<route.size()-1;i++){
             if(route.get(i+1).c.getTranslateX() == route.get(i).AstarLine.getEndX()){// then it's a common path
                     route.get(i).AstarLine.setStroke(Color.GREEN);
+//                    route.get(i).AstarLine.setStrokeWidth(4);
             }else{
-                System.out.println("HERERE");
                 route.get(i).bfsLine.setEndX(route.get(i+1).c.getTranslateX());
                 route.get(i).bfsLine.setEndY(route.get(i+1).c.getTranslateY());
                 route.get(i).bfsLine.setVisible(true);
@@ -260,6 +260,7 @@ public class Driver extends Application {
                 } else {
                     String edgesData = input.nextLine();
                     String[] tok = edgesData.split(" ");
+                    System.out.println(tok[0]+"-->"+tok[1]);
                     citiesMap.get((tok[0])).adjacent.add(new Adjacent(citiesMap.get(tok[1]), Float.parseFloat(tok[2])));
                     citiesMap.get(tok[1]).adjacent.add(new Adjacent(citiesMap.get(tok[0]), Float.parseFloat(tok[2])));
                 }
