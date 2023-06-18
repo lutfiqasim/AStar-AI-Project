@@ -16,7 +16,7 @@ public class Astar {
     }
 
     public TableEntry[] findPath(City start, City target, TableEntry[] table) {
-        startTime = System.currentTimeMillis();
+        startTime = System.nanoTime();
         this.target = target;
         this.start = start;
         table[start.cityEntry].distance = 0;
@@ -29,13 +29,13 @@ public class Astar {
             table[cityEntry].known = true;
 
             if (isFinalDestination(current.getCity())) {
-                endTime = System.currentTimeMillis();
+                endTime = System.nanoTime();
                 return table;
             } else {
                 addAdjacents(current.getCity(), table);
             }
         }
-        endTime = System.currentTimeMillis();
+        endTime = System.nanoTime();
         return table;
     }
 
@@ -90,7 +90,7 @@ public class Astar {
         if(startTime==0 || endTime ==0){
             return -1;
         }
-        return endTime -startTime;
+        return endTime - startTime ;
     }
 
 }

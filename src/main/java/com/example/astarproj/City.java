@@ -1,5 +1,6 @@
 package com.example.astarproj;
 
+import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -21,12 +22,18 @@ public class City {
     Line AstarLine;
     Line bfsLine;
 
+    Label distAstarLb;
+
+
+
+
     public City(String name, double x, double y) {
         this.x = x;
         this.y = y;
         this.name = name;
         this.AstarLine = new Line();
         this.bfsLine = new Line();
+        this.distAstarLb = new Label();
         createCircle();
         this.cityEntry = number++;
     }
@@ -39,7 +46,7 @@ public class City {
         bfsLine = new Line();
         bfsLine.toFront();
         bfsLine.setStrokeWidth(2);
-        bfsLine.setStroke(Color.YELLOW);
+        bfsLine.setStroke(Color.ORANGE);
         c = new Circle(3);
         c.setFill(Color.RED);
         c.setTranslateZ(4);
@@ -51,6 +58,7 @@ public class City {
         Tooltip toolTipTxt = new Tooltip(this.name);
         // Setting the tool tip to the text field
         Tooltip.install(c, toolTipTxt);
+//        distAstarLb.setVisible(false);
         c.setOnMouseEntered(e -> {
             c.setRadius(10);
         });

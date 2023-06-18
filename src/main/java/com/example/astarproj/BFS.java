@@ -18,9 +18,9 @@ public class BFS {
     public ArrayList<City> findPath(City start, City target, int numberOfVertices) {
         queue.clear();
         visited.clear();
-        startTime = System.currentTimeMillis();
+        startTime = System.nanoTime();
         ArrayList<City> c=startSearch(start, target, numberOfVertices);
-        endTime = System.currentTimeMillis();
+        endTime = System.nanoTime() ;
         return c;
 
     }
@@ -54,7 +54,7 @@ public class BFS {
     public long getTime() {
         if (startTime == 0 || endTime == 0)
             return -1;
-        return endTime - startTime;
+        return endTime - startTime ;
     }
 
 }

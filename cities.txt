@@ -1,49 +1,49 @@
 16 14
-Nablus,388.0,232.8,
-Ramallah,360.8,269.6
-Allid,286.4,278.4
-Jericho,450.4,294.4
-Jerusalem,344.8,298.4
-Bethlehem,343.2,321.6
-Hebron,339.2,350.4
-Tel-Al-Rabee,258.4,262.4
-Um-Khaled,292.8,196.8
-Jenin,394.4,193.6
-Al-Nasreh,411.2,141.6
-Heifa,319.2,125.6
-Acre,346.4,100.0
-Safad,431.2,96.8
-Rafah,133.6,389.6
-Tabareh,456.8,128.0
-Nablus Ramallah 81.8
+Nablus,303,284
+Ramallah,280, 330
+Lod,227, 343
+Jericho,340, 355
+Jerusalem,244, 373
+Bethlehem,252, 402
+Hebron,250,424
+Jafa,206, 305
+Um-Khaled,234, 261
+Jenin,287, 231
+Nazareth,293, 174
+Haifa,248, 183
+Acre,280,120
+Safad,337,106
+Rafah,100,468
+Tiberias,330, 164
 Ramallah Jerusalem 20
 Nablus Um-Khaled 57.2
-Jerusalem Tel-Al-Rabee 65.9
+Jerusalem Jafa 65.9
 Hebron Rafah 90.4
-Rafah Tel-Al-Rabee 110.5
-Heifa Safad 98.8
+Rafah Jafa 110.5
+Haifa Safad 98.8
 Safad Acre 54.0
-Acre Heifa 25.4
-Jenin Heifa 60.6
+Acre Haifa 25.4
+Jenin Haifa 60.6
 Nablus Jenin 41.5
 Jerusalem Bethlehem 9.5
-Hebron Bethlehem 21.58
-Ramallah Heifa 137
-Ramallah Safad 195.0
-Allid Bethlehem 52.9
+Jerusalem Hebron 30
+Hebron Bethlehem 44.58
+Ramallah Haifa 137
+Nablus Ramallah 81.8
+Ramallah Safad 195
+Lod Bethlehem 52.9
 Jericho Hebron 70.9
 Jerusalem Rafah 120.4
 Bethlehem Um-Khaled 104
-Al-Nasreh Acre 44.8
-Heifa Jenin 62.4
-Acre Tabareh 60.2
-Tabareh Bethlehem 182.2
+Nazareth Acre 44.8
+Haifa Jenin 62.4
+Acre Tiberias 60.2
+Tiberias Bethlehem 182.2
 Bethlehem Jericho 55.2
 Um-Khaled Nablus 60
 Jerusalem Hebron 39.6
 Safad Jenin 91.4
-Rafah Tabareh 323.2
 Jericho Ramallah 51.8
-Allid Jenin 116.8
-Tel-Al-Rabee Tabareh 132.2
+Lod Jenin 116.8
+Jafa Tiberias 132.2
 Um-Khaled Acre 90.5
