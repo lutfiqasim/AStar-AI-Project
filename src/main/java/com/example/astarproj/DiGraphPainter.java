@@ -59,7 +59,7 @@ public class DiGraphPainter {
             command.append("dot -Tpng ").    // output type
                     append(filePrefix).append(".dot ").   // input dot file
                     append("-o ").append(filePrefix).append(".png");  // output image
-            System.out.println(command.toString());
+//            System.out.println(command.toString());
 
             executeCommand(command.toString());
         } catch (Exception ex) {

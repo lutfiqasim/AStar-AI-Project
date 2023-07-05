@@ -14,7 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.FileChooser;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import java.awt.Desktop;
@@ -71,15 +71,10 @@ public class Driver extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        AStarTable = new TableEntry[citiesMap.size() + 1];
         cmb_target = new ComboBox<>();
         cmb_start = new ComboBox<>();
-        initializeTable();
         Scene scene = initGUI();
         scene.getStylesheets().add(Driver.class.getResource("primer-light.css").toExternalForm());
-        handleSelection();
-        addPointsToMap();
-//
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
         primaryStage.show();
@@ -90,7 +85,7 @@ public class Driver extends Application {
                 btnClear.setDisable(false);
             } catch (Exception nullExc) {
                 nullExc.printStackTrace();
-                warning_Message("Enter starting point and end point");
+                errorMsg("Enter starting point and end point");
             }
         });
         btnClear.setOnAction(e -> {
@@ -266,14 +261,27 @@ public class Driver extends Application {
 //            txtArea_path.setText("");
 //        });
         browseButton.setOnAction(e -> {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Open Resource File");
+            DirectoryChooser dirChooser = new DirectoryChooser();
+            dirChooser.setTitle("Select Resource Directory");
             // get stage of browse button
             Stage stage = (Stage) browseButton.getScene().getWindow();
-            File selectedFile = fileChooser.showOpenDialog(stage);
+            File selectedFile = dirChooser.showDialog(stage);
             if (selectedFile != null) {
                 browseField.setText(selectedFile.getAbsolutePath());
                 btnStart.setDisable(false);
+                String path = selectedFile.getAbsolutePath();
+                String citiesFilePath = (path + "/cities.csv");
+                String huresticsFilePath = (path + "/AirDistances.csv");
+                String roadsFilePath = (path + "/roads.csv");
+
+                readCities(citiesFilePath);
+                readHeuristicTable(huresticsFilePath);
+                readRoads(roadsFilePath);
+                AStarTable = new TableEntry[citiesMap.size() + 1];
+                initializeTable();
+                handleSelection();
+                addPointsToMap();
+
             }
             else {
                 btnStart.setDisable(true);
@@ -362,7 +370,7 @@ public class Driver extends Application {
                 bfsGraphImg = new Image("file: bfsPathGraph.png");
                 bfsGraphImgView.setImage(bfsGraphImg);
             }else{
-                warning_Message("Enter starting point and end point");
+                errorMsg("Enter starting point and end point");
             }
         } catch (Exception e) {
             throw e;
@@ -472,51 +480,82 @@ public class Driver extends Application {
         }
     }
 
-    private static void readHuersticTable(String fileName) {
-        File hFile = new File(fileName);
+    private static void readHeuristicTable(String heuristicsFilename) {
+        File hFile = new File(heuristicsFilename);
         try (Scanner input = new Scanner(hFile)) {
             while (input.hasNext()) {
                 String data = input.nextLine();
-                String[] tok = data.split(" ");//0: first city, 1 second city, 2 is air distance
+                String[] tok = data.split(",");//0: first city, 1 second city, 2 is air distance
                 Pair<String, String> pair = new Pair<>(tok[0], tok[1]);
                 hueristicMap.put(pair, Double.parseDouble(tok[2]));
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            errorMsg("Error Reading Heuristics File!");
         }
     }
 
-    private static void readData(String fileName) {
-        File stdFile = new File(fileName);
+    private static void readCities(String cities) {
+        File stdFile = new File(cities);
         try (Scanner input = new Scanner(stdFile)) {
             String numOfData = input.nextLine();
-            String[] str = numOfData.split(" ");
-            int countries = Integer.parseInt(str[0]);
-            int edges = Integer.parseInt(str[1]);
-            int countriesRead = 0;
+//            String[] str = numOfData.split(" ");
+            int citiesNo = 0;
+            try {
+                citiesNo = Integer.parseInt(numOfData);
+            }
+            catch (NumberFormatException e){
+                errorMsg("Please enter a valid number of cities!");
+            }
+//            int edges = Integer.parseInt(str[1]);
+            int citiesRead = 0;
 //            int edgesRead =0;
             while (input.hasNext()) {
-                if (countriesRead < countries) {
-                    String countryData = input.nextLine();
+                if (citiesRead < citiesNo) {
+                    String countryData = input.nextLine().strip();
+                    if (countryData.isEmpty()) { // skip empty lines
+                        continue;
+                    }
                     String[] tok = countryData.split(",");
                     City city = new City(tok[0].strip(), Double.parseDouble(tok[1].strip()),
                             Double.parseDouble(tok[2].strip()));
                     citiesMap.put(city.getName(), city);
-                    countriesRead++;
-                } else {
+                    citiesRead++;
+                } /*else {
                     String edgesData = input.nextLine();
                     String[] tok = edgesData.split(" ");
                     System.out.println(tok[0]+"-->"+tok[1]);
                     citiesMap.get((tok[0])).adjacent.add(new Adjacent(citiesMap.get(tok[1]), Float.parseFloat(tok[2])));
                     citiesMap.get(tok[1]).adjacent.add(new Adjacent(citiesMap.get(tok[0]), Float.parseFloat(tok[2])));
                     gp.addln("\"" + tok[0]+ "\"" + "--" + "\"" +tok[1]+ "\"");
-//                    gp.addln("\"" + tok[1]+ "\"" + "->" + "\"" +tok[0]+ "\"");
-                }
+                    //gp.addln("\"" + tok[1]+ "\"" + "->" + "\"" +tok[0]+ "\"");
+                }*/
+            }
+        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+            errorMsg("Error Reading Cities File!");
+        }
+    }
+
+
+    private static void readRoads(String roadsFilename){
+        File stdFile = new File(roadsFilename);
+        try (Scanner input = new Scanner(stdFile)) {
+//            int edgesRead =0;
+            while (input.hasNext()) {
+                String edgesData = input.nextLine().strip();
+                if (edgesData.isEmpty()) continue;
+                String[] tok = edgesData.split(",");
+                System.out.println(tok[0]+"-->"+tok[1]);
+                citiesMap.get((tok[0])).adjacent.add(new Adjacent(citiesMap.get(tok[1]), Float.parseFloat(tok[2])));
+                citiesMap.get(tok[1]).adjacent.add(new Adjacent(citiesMap.get(tok[0]), Float.parseFloat(tok[2])));
+                // drawing the graph
+                gp.addln("\"" + tok[0]+ "\"" + "--" + "\"" +tok[1]+ "\""); // Quotes are necessary for city names with illegal characters like "-"
 
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            warning_Message(e.toString());
+//            e.printStackTrace();
+            errorMsg("Error Reading Roads File!");
         }
     }
 
@@ -532,16 +571,16 @@ public class Driver extends Application {
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            warning_Message(e.toString());
+            errorMsg(e.toString());
         }
     }
 
     public static void main(String[] args) {
         try {
-            readData("cities.txt");
-            readHuersticTable("Huerstic.txt");
-            setLattitudeAndLongtiude("CitiesLongLat.txt");
-            gp.print();
+//            readData("Cities.csv");
+//            readHuersticTable("AirDistances.csv");
+//            setLattitudeAndLongtiude("CitiesLongLat.txt");
+//            gp.print();
             launch(args);
         } catch (Exception e) {
             e.printStackTrace();
@@ -549,10 +588,10 @@ public class Driver extends Application {
         }
     }
 
-    public static void warning_Message(String x) {
+    public static void errorMsg(String x) {
         Alert alert = new Alert(Alert.AlertType.NONE);
-        alert.setAlertType(Alert.AlertType.WARNING);
-        alert.setTitle("Warning");
+        alert.setAlertType(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
         alert.setContentText(x);
         alert.show();
     }
