@@ -15,7 +15,7 @@ public class City {
     double longtidue;
     Tooltip toolTipTxt;
     private String name;
-    private static int number = 0;
+    public static int number = 0;
     int cityEntry;
     Circle c;
     Set<Adjacent> adjacent = new HashSet<>();
