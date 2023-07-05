@@ -14,6 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import java.awt.Desktop;
@@ -64,7 +65,6 @@ public class Driver extends Application {
 
     AlgorithimEntry aStarEntry;
     AlgorithimEntry bfsEntry;
-
 
 
 
@@ -146,6 +146,7 @@ public class Driver extends Application {
         Label browseLabel = new Label("Data File: ");
         browseLabel.setDisable(true);
         TextField browseField = new TextField();
+        browseField.setEditable(false);
         Button browseButton = new Button("Browse");
         fileBrowsePane.getChildren().addAll(browseLabel, browseField, browseButton);
         fileBrowsePane.setSpacing(10);
@@ -219,7 +220,7 @@ public class Driver extends Application {
 
         InputStream imgStream = null;
         try {
-            imgStream = new FileInputStream("/Users/belal/JavaLibs/AStar-AI-Project/Palestine.png");
+            imgStream = new FileInputStream("Palestine.png");
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -264,6 +265,22 @@ public class Driver extends Application {
 //            txtArea_result.setText("");
 //            txtArea_path.setText("");
 //        });
+        browseButton.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Open Resource File");
+            // get stage of browse button
+            Stage stage = (Stage) browseButton.getScene().getWindow();
+            File selectedFile = fileChooser.showOpenDialog(stage);
+            if (selectedFile != null) {
+                browseField.setText(selectedFile.getAbsolutePath());
+                btnStart.setDisable(false);
+            }
+            else {
+                btnStart.setDisable(true);
+                browseField.setText("");
+            }
+
+        });
         showGraphBt.setOnAction(e -> {
             File file = new File("citiesGraph.png");
             try {
