@@ -1,6 +1,14 @@
-Digraph G {"Rafah" -> "Jafa"[label="  110.5"]
+Digraph G {"Hebron" -> "Bethlehem"[label="  44.6"]
 
-"Jafa" -> "Tiberias"[label="  132.2"]
+"Bethlehem" -> "Jerusalem"[label="  10.0"]
+
+"Jerusalem" -> "Ramallah"[label="  18.0"]
+
+"Ramallah" -> "Nablus"[label="  53.0"]
+
+"Nablus" -> "Jenin"[label="  43.0"]
+
+"Jenin" -> "Nazareth"[label="  31.0"]
 
 
 labelloc="t"
