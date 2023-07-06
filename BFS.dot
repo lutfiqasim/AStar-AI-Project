@@ -1,10 +1,6 @@
-Digraph G {"Hebron" -> "Bethlehem"
+Digraph G {"Rafah" -> "Jafa"
 
-"Bethlehem" -> "Jerusalem"
-
-"Jerusalem" -> "Jericho"
-
-"Jericho" -> "Nazareth"
+"Jafa" -> "Tiberias"
 
 
 labelloc="t"
