@@ -52,6 +52,8 @@ public class DiGraphPainter {
             }
 
             graphBuilder.insert(0, "Digraph G {").append("\n");
+            graphBuilder.append("labelloc=\"t\"\n"); // top of graph title
+            graphBuilder.append("label=" + "\"" + filePrefix +  "\""); // adding the name of the file as title to the graph
             graphBuilder.append("}").append("\n");
             writeTextToFile(filePrefix + ".dot", graphBuilder.toString());
 

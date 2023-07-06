@@ -1,0 +1,7 @@
+Digraph G {"Rafah" -> "Jafa"
+
+"Jafa" -> "Tiberias"
+
+
+labelloc="t"
+label="BFS"}

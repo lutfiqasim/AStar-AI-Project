@@ -41,9 +41,11 @@ public class Driver extends Application {
 
     static GraphPrinter gp = new GraphPrinter("citiesGraph");
 
-    static DiGraphPainter aStartPathGraph = new DiGraphPainter("aStartPathGraph");
+    static DiGraphPainter aStartPathGraph = new DiGraphPainter("AStar");
 
-    static DiGraphPainter bfsPathGraph = new DiGraphPainter("bfsPathGraph");
+    static DiGraphPainter bfsPathGraph = new DiGraphPainter("BFS");
+
+    static ArrayList<Double> aStarPathLabels = new ArrayList<>();
     Image aStarGraphImg;
 
     Image bfsGraphImg;
@@ -69,6 +71,7 @@ public class Driver extends Application {
 
 
 
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         cmb_target = new ComboBox<>();
@@ -78,7 +81,7 @@ public class Driver extends Application {
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
         primaryStage.show();
-        primaryStage.setTitle("Route Finder");
+        primaryStage.setTitle("Palestine City Navigator");
         btnStart.setOnAction(e -> {
             try {
                 OnStart();
@@ -117,6 +120,8 @@ public class Driver extends Application {
             });
         }
     }
+    public static String prevFilename = "";
+
 
     private Scene initGUI() {
         HBox mainPane = new HBox();
@@ -186,28 +191,32 @@ public class Driver extends Application {
 //        aStarVbfsTb.getItems().add("BFS", bfsTime, "O(b^d)", "O(b^d)");
 
         tablePane.getChildren().add(aStarVbfsTb);
-        aStarGraphImg = new Image("file: aStartPathGraph.png");
+        aStarGraphImg = new Image("file: AStar.png");
+        double aStartImgHeight = aStarGraphImg.getHeight();
         aStarGraphImgView = new ImageView(aStarGraphImg);
         aStarGraphImgView.setImage(aStarGraphImg);
-        aStarGraphImgView.setFitHeight(300);
+        aStarGraphImgView.setFitHeight(400);
         aStarGraphImgView.setPreserveRatio(true);
 
-        StackPane aStarGraphPane = new StackPane();
-        aStarGraphPane.getChildren().add(aStarGraphImgView);
-        bfsGraphImg = new Image("file: bfsPathGraph.png");
+//        StackPane aStarGraphPane = new StackPane();
+//        aStarGraphPane.getChildren().add(aStarGraphImgView);
+        bfsGraphImg = new Image("file: BFS.png");
+        double bfsImgHeight = bfsGraphImg.getHeight();
         bfsGraphImgView = new ImageView(bfsGraphImg);
         bfsGraphImgView.setImage(bfsGraphImg);
         bfsGraphImgView.setFitHeight(300);
         bfsGraphImgView.setPreserveRatio(true);
+//
+//        StackPane bfsGraphPane = new StackPane();
+//        bfsGraphPane.getChildren().add(bfsGraphImgView);
 
-        StackPane bfsGraphPane = new StackPane();
-        bfsGraphPane.getChildren().add(bfsGraphImgView);
 
-
-        routePane.getChildren().addAll(aStarGraphImgView, bfsGraphImgView);
-//        routePane.getChildren().addAll(aStarGraphPane, bfsGraphPane);
+        routePane.getChildren().addAll(bfsGraphImgView, aStarGraphImgView);
+        routePane.setSpacing(20);
+//        routePane.setMaxHeight(300);
 
         Button showGraphBt = new Button("Show Graph");
+        showGraphBt.setDisable(true);
 
         leftPane.getChildren().addAll(fileBrowsePane, calcButtonPane, routePane, distanceLbPane, showGraphBt, tablePane);
         leftPane.setSpacing(10);
@@ -261,18 +270,23 @@ public class Driver extends Application {
 //            txtArea_path.setText("");
 //        });
         browseButton.setOnAction(e -> {
+            OnClear();
             DirectoryChooser dirChooser = new DirectoryChooser();
             dirChooser.setTitle("Select Resource Directory");
             // get stage of browse button
             Stage stage = (Stage) browseButton.getScene().getWindow();
             File selectedFile = dirChooser.showDialog(stage);
             if (selectedFile != null) {
+                showGraphBt.setDisable(false);
+                City.number= 0;
+                citiesMap = new HashMap<>();
                 browseField.setText(selectedFile.getAbsolutePath());
+                prevFilename = selectedFile.getAbsolutePath();
                 btnStart.setDisable(false);
                 String path = selectedFile.getAbsolutePath();
-                String citiesFilePath = (path + "/cities.csv");
+                String citiesFilePath = (path + "/Cities.csv");
                 String huresticsFilePath = (path + "/AirDistances.csv");
-                String roadsFilePath = (path + "/roads.csv");
+                String roadsFilePath = (path + "/Roads.csv");
 
                 readCities(citiesFilePath);
                 readHeuristicTable(huresticsFilePath);
@@ -284,8 +298,9 @@ public class Driver extends Application {
 
             }
             else {
-                btnStart.setDisable(true);
-                browseField.setText("");
+//                btnStart.setDisable(true);
+                browseField.setText(prevFilename);
+//                showGraphBt.setDisable(true);
             }
 
         });
@@ -303,6 +318,7 @@ public class Driver extends Application {
         return new Scene(mainPane, windWidth, 900);
 
     }
+
 
     private void addPointsToMap(){
         for (Map.Entry<String, City> c : citiesMap.entrySet()) {
@@ -332,42 +348,43 @@ public class Driver extends Application {
                 aStarDistance= (int)(AStarTable[citiesMap.get(end).cityEntry].distance);
                 aStarEntry.distance = aStarDistance;
                 distanceLbVal.setText(String.valueOf(aStarDistance));
-                System.out.println("Astar Time: " + aStarTime);
+//                System.out.println("Astar Time: " + aStarTime);
                 ArrayList<City> bfsroute= bfsSearch.findPath(citiesMap.get(start),citiesMap.get(end), citiesMap.size());
                 bfsTime = bfsSearch.getTime();
                 bfsEntry.actualTime = bfsTime;
                 bfsDistance = bfsroute.size()-1;
                 bfsEntry.distance = bfsDistance;
-                aStarVbfsTb.getItems().clear();
+//                aStarVbfsTb.getItems().clear();
                 aStarVbfsTb.getItems().add(aStarEntry);
                 aStarVbfsTb.getItems().add(bfsEntry);
 
-                System.out.println("BFS Time: " + bfsTime);
+//                System.out.println("BFS Time: " + bfsTime);
                 makeBFSGraph(bfsroute);
 
 //                Printing A star path
+                aStarPathLabels.clear(); // clear the labels from the previous path
                 StringBuilder path = new StringBuilder("");
-                printPath(citiesMap.get(end), path);
+                plotAstarPath(citiesMap.get(end), path);
 //                -----------------------------------------------------------------------------
 //                BFS call and path returning and printing on consule
-                System.out.println(bfsSearch.getTime());
-                for (City c: bfsroute)
-                    System.out.println(c);
-                printBFSPath(bfsroute);
-                System.out.println("BFS EDGE COUNT = "+(bfsroute.size()-1));
+//                System.out.println(bfsSearch.getTime());
+//                for (City c: bfsroute)
+//                    System.out.println(c);
+                plotBFSPath(bfsroute);
+//                System.out.println("BFS EDGE COUNT = "+(bfsroute.size()-1));
 //                -----------------------------------------------------------
 
-                txtArea_path.setText(path.toString());
-                txtArea_result.setText("Distance to go from " + start + " to " + end + "\n="
-                        + AStarTable[citiesMap.get(end).cityEntry].getDistance() + "km\n"+
-                        "Time taken to find using A*=:"+search.timeTaken());
+//                txtArea_path.setText(path.toString());
+//                txtArea_result.setText("Distance to go from " + start + " to " + end + "\n="
+//                        + AStarTable[citiesMap.get(end).cityEntry].getDistance() + "km\n"+
+//                        "Time taken to find using A*=:"+search.timeTaken());
 //                String formatedAstartPath = getPathFormated(path.toString());
 //                aStartPathLb.setText("A* Path: " + formatedAstartPath);
                 makeAstarGraph(path.toString());
                 Thread.sleep(1000);
-                aStarGraphImg = new Image("file:aStartPathGraph.png");
+                aStarGraphImg = new Image("file:AStar.png");
                 aStarGraphImgView.setImage(aStarGraphImg);
-                bfsGraphImg = new Image("file: bfsPathGraph.png");
+                bfsGraphImg = new Image("file:BFS.png");
                 bfsGraphImgView.setImage(bfsGraphImg);
             }else{
                 errorMsg("Enter starting point and end point");
@@ -387,9 +404,12 @@ public class Driver extends Application {
 
     private void makeAstarGraph(String rawPath) {
         aStartPathGraph.clear();
+        double num = 0;
         String [] cities = rawPath.split(":");
         for (int i = 0 ; i < cities.length - 1; i++){
-            aStartPathGraph.addln("\"" + cities[i] + "\"" + " -> "  + "\"" + cities[i+1] + "\"" +"\n");
+            num = aStarPathLabels.get(i+1);
+            double num_before = aStarPathLabels.get(i);
+            aStartPathGraph.addln("\"" + cities[i] + "\"" + " -> "  + "\"" + cities[i+1] + "\"" + "[label=" + "\"" + "  " + String.format("%.1f",(num - num_before)) + "\"]" +"\n");
         }
         aStartPathGraph.print();
     }
@@ -408,40 +428,44 @@ public class Driver extends Application {
     }
 
     private void OnClear() {
-        txtArea_path.clear();
-        txtArea_result.clear();
+//        txtArea_path.clear();
+//        txtArea_result.clear();
+        aStarVbfsTb.getItems().clear();
+        distanceLbVal.setText("");
         aStarGraphImgView.setImage(null);
         bfsGraphImgView.setImage(null);
 //        aStartPathLb.setText("A* Path: ");
 //        bfsPathLb.setText("BFS Path: ");
         removeDistAstarLb();
-        for (int i = 0; i < AStarTable.length; i++) {
-            AStarTable[i].known = false;
-            if (AStarTable[i].path != null) {
-                AStarTable[i].path.AstarLine.setStroke(Color.BLACK);
-//                AStarTable[i].path.distAstarLb.setVisible(false);
-//                AStarTable[i].path.distAstarLb.setText("");
+        if (AStarTable != null) {
+            for (int i = 0; i < AStarTable.length; i++) {
+                AStarTable[i].known = false;
+                if (AStarTable[i].path != null) {
+                    AStarTable[i].path.AstarLine.setStroke(Color.BLACK);
+                    //                AStarTable[i].path.distAstarLb.setVisible(false);
+                    //                AStarTable[i].path.distAstarLb.setText("");
+                }
+                AStarTable[i].path = null;
+                AStarTable[i].distance = Double.MAX_VALUE;
+                initializeTable();
             }
-            AStarTable[i].path = null;
-            AStarTable[i].distance = Double.MAX_VALUE;
-            initializeTable();
-        }
-        for(Map.Entry<String, City> c:citiesMap.entrySet()){
-            c.getValue().c.setFill(Color.RED);
-            c.getValue().bfsLine.setVisible(false);
-            c.getValue().AstarLine.setVisible(false);
-            c.getValue().AstarLine.setStroke(Color.BLACK);
+            for (Map.Entry<String, City> c : citiesMap.entrySet()) {
+                c.getValue().c.setFill(Color.RED);
+                c.getValue().bfsLine.setVisible(false);
+                c.getValue().AstarLine.setVisible(false);
+                c.getValue().AstarLine.setStroke(Color.BLACK);
+            }
         }
 
     }
 
-    private void printPath(City start, StringBuilder s) {//Note to bebo start her is end
+    private void plotAstarPath(City start, StringBuilder s) {//Note to bebo start her is end
         if (AStarTable[start.cityEntry].path != null) {
             AStarTable[start.cityEntry].path.AstarLine.setEndX(start.c.getTranslateX());
             AStarTable[start.cityEntry].path.AstarLine.setEndY(start.c.getTranslateY());
             AStarTable[start.cityEntry].path.AstarLine.setVisible(true);
             AStarTable[start.cityEntry].path.c.setFill(Color.BLUE);
-            printPath(AStarTable[start.cityEntry].path, s);
+            plotAstarPath(AStarTable[start.cityEntry].path, s);
             double label_pointX = (start.c.getTranslateX() + AStarTable[start.cityEntry].path.c.getTranslateX()) / 2;
             double label_pointY = (start.c.getTranslateY() + AStarTable[start.cityEntry].path.c.getTranslateY()) / 2;
 //            System.out.println(label_pointX + " " + label_pointY);
@@ -451,6 +475,7 @@ public class Driver extends Application {
             AStarTable[start.cityEntry].path.distAstarLb.setText(AStarTable[start.cityEntry].getDistance() + " km");
         }
         s.append(start.getName() + ":");
+        aStarPathLabels.add(AStarTable[start.cityEntry].getDistance());
     }
 
     private void removeDistAstarLb(){
@@ -458,14 +483,16 @@ public class Driver extends Application {
             c.getValue().distAstarLb.setVisible(false);
         }
     }
-    private void printBFSPath(ArrayList<City>route){
+    private void plotBFSPath(ArrayList<City>route){
         for (int i =0;i<route.size()-1;i++){
             if(route.get(i+1).c.getTranslateX() == route.get(i).AstarLine.getEndX() && route.get(i+1).c.getTranslateY() == route.get(i).AstarLine.getEndY()){
             // then it's a common path
                 route.get(i).AstarLine.setStroke(Color.GREEN);
+                System.out.println(true);
 //                    route.get(i).AstarLine.setStrokeWidth(4);
             }else{
                 route.get(i).bfsLine.setEndX(route.get(i+1).c.getTranslateX());
+                System.out.println("i: " + route.get(i).getName() + " -> i+1: " + route.get(i+1).getName());
                 route.get(i).bfsLine.setEndY(route.get(i+1).c.getTranslateY());
                 route.get(i).bfsLine.setVisible(true);
             }
@@ -482,6 +509,9 @@ public class Driver extends Application {
 
     private static void readHeuristicTable(String heuristicsFilename) {
         File hFile = new File(heuristicsFilename);
+        if (!hFile.exists()) {
+            errorMsg("Heuristics file not found!");
+        }
         try (Scanner input = new Scanner(hFile)) {
             while (input.hasNext()) {
                 String data = input.nextLine();
@@ -497,6 +527,9 @@ public class Driver extends Application {
 
     private static void readCities(String cities) {
         File stdFile = new File(cities);
+        if (!stdFile.exists()) {
+            errorMsg("Cities file not found!");
+        }
         try (Scanner input = new Scanner(stdFile)) {
             String numOfData = input.nextLine();
 //            String[] str = numOfData.split(" ");
@@ -539,7 +572,11 @@ public class Driver extends Application {
 
 
     private static void readRoads(String roadsFilename){
+        gp = new GraphPrinter("citiesGraph");
         File stdFile = new File(roadsFilename);
+        if (!stdFile.exists()) {
+            errorMsg("Roads file not found!");
+        }
         try (Scanner input = new Scanner(stdFile)) {
 //            int edgesRead =0;
             while (input.hasNext()) {
@@ -549,14 +586,17 @@ public class Driver extends Application {
                 System.out.println(tok[0]+"-->"+tok[1]);
                 citiesMap.get((tok[0])).adjacent.add(new Adjacent(citiesMap.get(tok[1]), Float.parseFloat(tok[2])));
                 citiesMap.get(tok[1]).adjacent.add(new Adjacent(citiesMap.get(tok[0]), Float.parseFloat(tok[2])));
+                String edgeLb = String.format("%.2f", Float.parseFloat(tok[2]));
                 // drawing the graph
-                gp.addln("\"" + tok[0]+ "\"" + "--" + "\"" +tok[1]+ "\""); // Quotes are necessary for city names with illegal characters like "-"
+                gp.addln("\"" + tok[0]+ "\"" + "--" + "\"" +tok[1]+ "\"" + "[label=" + "\"" + edgeLb + "\"]"); // Quotes are necessary for city names with illegal characters like "-"
 
             }
         } catch (FileNotFoundException e) {
 //            e.printStackTrace();
             errorMsg("Error Reading Roads File!");
         }
+        gp.addln("rankdir=LR");
+        gp.print();
     }
 
     private static void setLattitudeAndLongtiude(String file) {
@@ -580,7 +620,6 @@ public class Driver extends Application {
 //            readData("Cities.csv");
 //            readHuersticTable("AirDistances.csv");
 //            setLattitudeAndLongtiude("CitiesLongLat.txt");
-//            gp.print();
             launch(args);
         } catch (Exception e) {
             e.printStackTrace();
